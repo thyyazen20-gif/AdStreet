@@ -1,0 +1,19 @@
+# Node
+node_modules
+
+# Flutter
+.flutter-plugins
+.flutter-plugins-dependencies
+.dart_tool
+.packages
+build
+
+# NestJS
+dist
+.env
+
+# Other
+.DS_Store
+.vscode
+*.log
+*.env
