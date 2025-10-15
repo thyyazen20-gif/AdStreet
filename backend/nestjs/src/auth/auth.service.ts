@@ -80,6 +80,24 @@ export class AuthService {
     console.log(`Password reset email sent to ${email}`);
   }
 
+  async socialLogin(socialUser: any): Promise<AuthSuccessDto> {
+    let user = await this.usersRepository.findOne({ where: { email: socialUser.email } });
+
+    if (!user) {
+      // Register new user if not found
+      user = this.usersRepository.create({
+        email: socialUser.email,
+        name: socialUser.firstName + (socialUser.lastName ? ` ${socialUser.lastName}` : ""),
+        // Social logins don't have passwords, so we can set a placeholder or handle it differently
+        passwordHash: "", 
+        userType: "customer", // Default user type for social logins
+      });
+      await this.usersRepository.save(user);
+    }
+
+    return this.generateTokens(user);
+  }
+
   private async generateTokens(user: User): Promise<AuthSuccessDto> {
     const payload = { email: user.email, sub: user.id, userType: user.userType };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' }); // Short-lived access token

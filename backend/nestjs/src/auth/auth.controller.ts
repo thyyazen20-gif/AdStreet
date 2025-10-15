@@ -1,4 +1,5 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Req } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -46,5 +47,33 @@ export class AuthController {
   @ApiResponse({ status: 404, description: 'User not found' })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto): Promise<void> {
     await this.authService.forgotPassword(forgotPasswordDto.email);
+  }
+
+  @Get("google")
+  @ApiOperation({ summary: "Authenticate with Google" })
+  @UseGuards(AuthGuard("google"))
+  async googleAuth(@Req() req) {
+    // Initiates the Google OAuth2 login flow
+  }
+
+  @Get("google/redirect")
+  @ApiOperation({ summary: "Google OAuth2 callback" })
+  @UseGuards(AuthGuard("google"))
+  async googleAuthRedirect(@Req() req): Promise<AuthSuccessDto> {
+    return this.authService.socialLogin(req.user);
+  }
+
+  @Get("apple")
+  @ApiOperation({ summary: "Authenticate with Apple" })
+  @UseGuards(AuthGuard("apple"))
+  async appleAuth(@Req() req) {
+    // Initiates the Apple OAuth2 login flow
+  }
+
+  @Post("apple/redirect") // Apple uses POST for callback
+  @ApiOperation({ summary: "Apple OAuth2 callback" })
+  @UseGuards(AuthGuard("apple"))
+  async appleAuthRedirect(@Req() req): Promise<AuthSuccessDto> {
+    return this.authService.socialLogin(req.user);
   }
 }
